@@ -1,0 +1,32 @@
+You're free to choose the stack you want to achieve the result.
+
+The following pages are required:
+-Login page
+-List of 'posts'
+
+
+A user should only be able to access the page after logging in. Creating a user is not a requirement, 
+so if you set one up manually, that's fine, but I want to see a user logging in properly with the correct validation.
+
+'List page' should contain the following:
+
+-Table of all posts. Columns should be 'title', 'date_created' and action button.
+-'New post' button above the table that triggers a modal containing the form
+
+The form should contain 'title' + 'post'
+
+-Action button should be a dropdown button with 'edit' and 'delete'.
+
+Edit button should open the same modal as 'new'
+Delete should be triggered after a confirmation. (Are you sure yes/no)
+
+
+The changes made in this list should be reactive. Creating a new post should add a row in the table without a page refresh. The same with edit/delete.
+
+Clicking the 'title' in the table should open a 'details modal' showing the post.
+
+
+Det er kravspec for å få 'godkjent'. Dette er i samme gate som mye vi gjør. Jeg lar layout og detaljer være opp til deg. Føler du det trengs endringer for å gjøre det bedre, kjør på :)
+
+Bonus: Brukerregistrering på login skjema (Opprett bruker) som oppretter en bruker med  'lesetilgang'. Denne brukeren kan bare se, men ikke opprette eller endre posts.
+Er det spørsmål rundt denne kan du kontakte meg på denne mailen eller på tlf.
