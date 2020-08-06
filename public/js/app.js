@@ -2153,6 +2153,70 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -2160,7 +2224,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       posts: null,
       title: null,
       post: null,
-      post_id: null
+      post_id: null,
+      delete_post: {}
     };
   },
   methods: {
@@ -2209,16 +2274,61 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       axios.post("postSubmit", {
         body: postObj
       }).then(function (response) {
-        _this2.resetForm();
-
-        _this2.hideModal();
-
         console.log("Response: ", response);
-        _this2.posts = response.data;
+        console.log("Response.postStatus: ", response.data.postStatus);
 
-        _this2.notice("success", "Post saved", "Your post was saved");
+        if (response.data.postStatus == "success") {
+          // Post was successfully added.
+          // Reset form, hide modal, notify user and reseed posts variable from backend data.
+          _this2.resetForm();
+
+          _this2.hideModal();
+
+          _this2.posts = response.data.allPosts; // Reseed posts with updated array from backend.
+
+          var post = response.data.savedPost; // Make variable with the post that was just made or changed.
+
+          _this2.notice("success", "Post saved", "Your post <b>".concat(post.title, "</b> was saved."));
+        }
+
+        if (response.data.error) {
+          _this2.errors = response.data.error; // Display error messages from backend
+        }
       })["catch"](function (e) {
-        _this2.errors.push(e);
+        _this2.errors.push(e); // Add catched error from backend to errors array
+
+      });
+    },
+    submitDeletePost: function submitDeletePost(postObj) {
+      var _this3 = this;
+
+      axios.post("deletePost", {
+        body: postObj
+      }).then(function (response) {
+        console.log("Response: ", response);
+
+        if (response.data.deleteStatus == "success") {
+          // Post was successfully added.
+          // Reset form, hide modal, notify user and reseed posts variable from backend data.
+          _this3.hideDeleteModal();
+
+          _this3.posts = response.data.allPosts; // Reseed posts with updated array from backend.
+
+          var post = response.data.deletedPost; // Make variable with the post that was just made or changed.
+
+          _this3.notice("success", "Post deleted", "Your post <b>".concat(post.title, "</b> was deleted."));
+        }
+
+        if (response.data.deleteStatus == "error") {
+          _this3.hideDeleteModal();
+
+          _this3.posts = response.data.allPosts; // Reseed posts with updated array from backend. If post was somehow deleted elsewhere, it will be removed from displayed list.
+
+          _this3.notice("error", "Post delete error", "There was an error with deleting the post: ".concat(response.data.errors));
+        }
+      })["catch"](function (e) {
+        _this3.notice("error", "Delete error", e); // Display notification with error from backend
+
       });
     },
     notice: function notice(type, title, message) {
@@ -2272,17 +2382,28 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           post_id: this.post_id,
           title: this.title,
           post: this.post
-        }; // this.notice("success", "Suksess", "Alt stemmer");
-
+        };
         this.submitPost(postObj);
-        return true;
       }
+    },
+    checkDeleteForm: function checkDeleteForm(e) {
+      e.preventDefault(); // prevent default form action
+
+      console.log(this.delete_post);
+      this.submitDeletePost(this.delete_post);
     },
     showModal: function showModal() {
       $("#editPost").modal("show");
     },
     hideModal: function hideModal() {
       $("#editPost").modal("hide");
+    },
+    hideDeleteModal: function hideDeleteModal() {
+      $("#deleteModal").modal("hide");
+    },
+    deletePost: function deletePost(post) {
+      this.delete_post = post;
+      $("#deleteModal").modal("show");
     }
   },
   mounted: function mounted() {
@@ -38711,6 +38832,70 @@ var render = function() {
       {
         staticClass: "modal fade",
         attrs: {
+          id: "deleteModal",
+          tabindex: "-1",
+          role: "dialog",
+          "aria-labelledby": "deleteModalLabel",
+          "aria-hidden": "true"
+        }
+      },
+      [
+        _c(
+          "form",
+          {
+            on: {
+              submit: function($event) {
+                $event.preventDefault()
+                return _vm.checkDeleteForm($event)
+              }
+            }
+          },
+          [
+            _c(
+              "div",
+              { staticClass: "modal-dialog", attrs: { role: "document" } },
+              [
+                _c("div", { staticClass: "modal-content" }, [
+                  _c("div", { staticClass: "modal-header" }, [
+                    _c(
+                      "h5",
+                      {
+                        staticClass: "modal-title",
+                        attrs: { id: "deleteModalLabel" }
+                      },
+                      [
+                        _vm._v("\n                            Delete post: "),
+                        _c("b", [_vm._v(_vm._s(_vm.delete_post.title))]),
+                        _vm._v("?\n                        ")
+                      ]
+                    ),
+                    _vm._v(" "),
+                    _vm._m(1)
+                  ]),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "modal-body" }, [
+                    _vm._v(
+                      "\n                        Are you sure you want to delete this post?\n                        "
+                    ),
+                    _c("hr"),
+                    _vm._v(" "),
+                    _c("h4", [_c("i", [_vm._v(_vm._s(_vm.delete_post.title))])])
+                  ]),
+                  _vm._v(" "),
+                  _vm._m(2)
+                ])
+              ]
+            )
+          ]
+        )
+      ]
+    ),
+    _vm._v(" "),
+    _c(
+      "div",
+      {
+        staticClass: "modal fade",
+        attrs: {
           id: "editPost",
           tabindex: "-1",
           role: "dialog",
@@ -38760,7 +38945,7 @@ var render = function() {
                       ]
                     ),
                     _vm._v(" "),
-                    _vm._m(1)
+                    _vm._m(3)
                   ]),
                   _vm._v(" "),
                   _c("div", { staticClass: "modal-body" }, [
@@ -38779,8 +38964,8 @@ var render = function() {
                           ),
                           _c(
                             "ul",
-                            _vm._l(_vm.errors, function(error) {
-                              return _c("li", { key: error }, [
+                            _vm._l(_vm.errors, function(error, index) {
+                              return _c("li", { key: index }, [
                                 _vm._v(
                                   "\n                                    " +
                                     _vm._s(error) +
@@ -38889,7 +39074,7 @@ var render = function() {
                     ])
                   ]),
                   _vm._v(" "),
-                  _vm._m(2)
+                  _vm._m(4)
                 ])
               ]
             )
@@ -38902,7 +39087,7 @@ var render = function() {
       ? _c("div", [
           _c("div", { staticClass: "row justify-content-center" }, [
             _c("div", { staticClass: "col-12" }, [
-              _c("h3", [_vm._v("Posts")]),
+              _c("h3", [_vm._v("Posts (" + _vm._s(_vm.posts.length) + ")")]),
               _vm._v(" "),
               _c(
                 "button",
@@ -38920,12 +39105,12 @@ var render = function() {
             _vm._v(" "),
             _c("div", { staticClass: "col-12 pt-1" }, [
               _c("table", { staticClass: "table table-striped table-hover" }, [
-                _vm._m(3),
+                _vm._m(5),
                 _vm._v(" "),
                 _c(
                   "tbody",
-                  _vm._l(_vm.posts, function(post) {
-                    return _c("tr", { key: post.id }, [
+                  _vm._l(_vm.posts, function(post, index) {
+                    return _c("tr", { key: index }, [
                       _c("td", { attrs: { scope: "row" } }, [
                         _vm._v(_vm._s(post.title))
                       ]),
@@ -38997,19 +39182,31 @@ var render = function() {
                                   }
                                 },
                                 [
+                                  _c("i", { staticClass: "fas fa-fw fa-edit" }),
                                   _vm._v(
                                     "\n                                            Edit\n                                        "
                                   )
                                 ]
                               ),
                               _vm._v(" "),
+                              _c("div", { staticClass: "dropdown-divider" }),
+                              _vm._v(" "),
                               _c(
                                 "button",
                                 {
                                   staticClass: "dropdown-item",
-                                  attrs: { href: "#" }
+                                  attrs: { href: "#" },
+                                  on: {
+                                    click: function($event) {
+                                      return _vm.deletePost(post)
+                                    }
+                                  }
                                 },
                                 [
+                                  _c("i", {
+                                    staticClass:
+                                      "far fa-fw text-danger fa-trash-alt"
+                                  }),
                                   _vm._v(
                                     "\n                                            Delete\n                                        "
                                   )
@@ -39040,6 +39237,48 @@ var staticRenderFns = [
       { staticClass: "spinner-border text-success", attrs: { role: "status" } },
       [_c("span", { staticClass: "sr-only" }, [_vm._v("Loading posts...")])]
     )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "button",
+      {
+        staticClass: "close",
+        attrs: {
+          type: "button",
+          "data-dismiss": "modal",
+          "aria-label": "Close"
+        }
+      },
+      [_c("span", { attrs: { "aria-hidden": "true" } }, [_vm._v("×")])]
+    )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "modal-footer" }, [
+      _c(
+        "button",
+        {
+          staticClass: "btn btn-secondary",
+          attrs: { type: "button", "data-dismiss": "modal" }
+        },
+        [
+          _vm._v(
+            "\n                            Cancel\n                        "
+          )
+        ]
+      ),
+      _vm._v(" "),
+      _c(
+        "button",
+        { staticClass: "btn btn-danger", attrs: { type: "submit" } },
+        [_vm._v("\n                            Yes\n                        ")]
+      )
+    ])
   },
   function() {
     var _vm = this

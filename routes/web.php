@@ -23,5 +23,9 @@ Route::get('/home', 'HomeController@index')->name('home');
 
 Route::middleware('auth:sanctum')->get('/posts', 'PostController@showPosts')->name('posts');
 Route::middleware('auth:sanctum')->post('/postSubmit', 'PostController@postSubmit')->name('postSubmit');
+Route::middleware('auth:sanctum')->post('/deletePost', 'PostController@deletePost')->name('deletePost');
 
 Route::middleware('auth:sanctum')->get('/getPosts', 'PostController@getPosts')->name('getPosts');
+
+
+Route::middleware('auth:sanctum')->get('/test', 'PostController@test')->name('test');

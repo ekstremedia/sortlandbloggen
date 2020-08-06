@@ -106,42 +106,101 @@ class PostController extends Controller
     public function getPosts()
     {
         $posts = Post::where('user_id', auth()->user()->id)
+            ->with('author')
             ->orderBy('created_at', 'desc')
             ->get();
         return $posts;
     }
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Post  $post
-     * @return \Illuminate\Http\Response
-     */
+
     public function postSubmit(Request $request)
     {
-        // dd($request->body['title']);
+        // // dd($request->body['title']);
+        $response = collect();
 
-        if (isset($request->body['post_id'])) {
-            $thePost = Post::where('id', $request->body['post_id'])->first();
-            $thePost->title = $request->body['title'];
-            $thePost->post = $request->body['post'];
-            $thePost->user_id = auth()->user()->id;
-            $thePost->save();
-            } else {
-            // Making new post
-            $thePost = new Post();
-            $thePost->title = $request->body['title'];
-            $thePost->post = $request->body['post'];
-            $thePost->user_id = auth()->user()->id;
-            $thePost->save();
+        $error = [];
+
+        if (!isset($request->body['title']) || empty($request->body['title'])) {
+            $error[] = "Empty title";
+        }
+        if (!isset($request->body['post']) || empty($request->body['post'])) {
+            $error[] = "Empty post";
         }
 
-        // return response()->json($request);
+        if (!$error) {
+            if (isset($request->body['post_id'])) {
+                $thePost = Post::where('id', $request->body['post_id'])->first();
+                $thePost->title = $request->body['title'];
+                $thePost->post = $request->body['post'];
+                $thePost->user_id = auth()->user()->id;
+                $thePost->save();
+                $response->put("savedPost", $thePost);
+                $response->put("postStatus", "success");
+            } else {
+                // Making new post
+                $thePost = new Post();
+                $thePost->title = $request->body['title'];
+                $thePost->post = $request->body['post'];
+                $thePost->user_id = auth()->user()->id;
+                $thePost->save();
+                $response->put("savedPost", $thePost);
+                $response->put("postStatus", "success");
+            }
+        } else {
+            $response->put("error", $error);
+        }
         $posts = Post::where('user_id', auth()->user()->id)
+            ->with('author')
             ->orderBy('created_at', 'desc')
             ->get();
-        return response()->json($posts);
-        
+        $response->put("allPosts", $posts);
 
-        // return redirect('posts');
+        return response()->json($response);
+    }
+
+    public function deletePost(Request $request)
+    {
+        // // dd($request->body['title']);
+        $response = collect();
+        $errors = [];
+        $thePost = Post::where('id', $request->body['id'])->first();
+        if ($thePost) {
+            if ($thePost->delete()) {
+                $response->put("deleteStatus", "success");
+            } else {
+                $response->put("deleteStatus", "error");
+                $errors[] = "Could not delete the post";
+            }
+        } else {
+            $response->put("deleteStatus", "error");
+            $errors[] = "The post does not exist.";
+        }
+        $posts = Post::where('user_id', auth()->user()->id)
+            ->with('author')
+            ->orderBy('created_at', 'desc')
+            ->get();
+        $response->put("allPosts", $posts);
+        $response->put("deletedPost", $thePost);
+        if ($errors) {
+            $response->put("errors", $errors);
+        }
+
+        return response()->json($response);
+    }
+
+
+    public function test()
+    {
+        // $c = collect();
+        // $okObj = "OK";
+        // $post = Post::where('id', 3)->first();
+        // $c->add($okObj);
+        // $c->add($post);
+        // return response()->json($c);
+
+        $post = Post::where('id', 1)
+            ->with('author')
+            ->first();
+
+        return $post;
     }
 }

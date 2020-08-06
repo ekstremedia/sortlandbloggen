@@ -7,7 +7,59 @@
             <h3>Loading posts</h3>
         </div>
 
-        <!-- Modal -->
+        <!-- Delete modal -->
+
+        <div
+            class="modal fade"
+            id="deleteModal"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="deleteModalLabel"
+            aria-hidden="true"
+        >
+            <form v-on:submit.prevent="checkDeleteForm">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteModalLabel">
+                                Delete post: <b>{{ delete_post.title }}</b
+                                >?
+                            </h5>
+                            <button
+                                type="button"
+                                class="close"
+                                data-dismiss="modal"
+                                aria-label="Close"
+                            >
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to delete this post?
+                            <hr />
+                            <h4>
+                                <i>{{ delete_post.title }}</i>
+                            </h4>
+                        </div>
+                        <div class="modal-footer">
+                            <button
+                                type="button"
+                                class="btn btn-secondary"
+                                data-dismiss="modal"
+                            >
+                                Cancel
+                            </button>
+                            <button type="submit" class="btn btn-danger">
+                                Yes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- Delete modal end -->
+
+        <!-- Post modal -->
         <div
             class="modal fade"
             id="editPost"
@@ -46,7 +98,10 @@
                                 >
                                 in form:
                                 <ul>
-                                    <li v-for="error in errors" :key="error">
+                                    <li
+                                        v-for="(error, index) in errors"
+                                        :key="index"
+                                    >
                                         {{ error }}
                                     </li>
                                 </ul>
@@ -102,12 +157,12 @@
             </form>
         </div>
 
-        <!-- Modal end -->
+        <!-- Post modal end -->
 
         <div v-if="posts">
             <div class="row justify-content-center">
                 <div class="col-12">
-                    <h3>Posts</h3>
+                    <h3>Posts ({{ posts.length }})</h3>
                     <button
                         @click="newPost"
                         type="button"
@@ -127,7 +182,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="post of posts" :key="post.id">
+                            <tr v-for="(post, index) of posts" :key="index">
                                 <td scope="row">{{ post.title }}</td>
                                 <td>
                                     {{
@@ -166,12 +221,21 @@
                                                 href="#"
                                                 @click="editPost(post)"
                                             >
+                                                <i
+                                                    class="fas fa-fw fa-edit"
+                                                ></i>
                                                 Edit
                                             </button>
+                                            <div class="dropdown-divider"></div>
+
                                             <button
                                                 class="dropdown-item"
                                                 href="#"
+                                                @click="deletePost(post)"
                                             >
+                                                <i
+                                                    class="far fa-fw text-danger fa-trash-alt"
+                                                ></i>
                                                 Delete
                                             </button>
                                         </div>
@@ -193,7 +257,8 @@ export default {
             posts: null,
             title: null,
             post: null,
-            post_id: null
+            post_id: null,
+            delete_post: {}
         };
     },
     methods: {
@@ -221,14 +286,63 @@ export default {
                     body: postObj
                 })
                 .then(response => {
-                    this.resetForm();
-                    this.hideModal();
                     console.log("Response: ", response);
-                    this.posts = response.data;
-                    this.notice("success", "Post saved", "Your post was saved");
+                    console.log(
+                        "Response.postStatus: ",
+                        response.data.postStatus
+                    );
+                    if (response.data.postStatus == "success") {
+                        // Post was successfully added.
+                        // Reset form, hide modal, notify user and reseed posts variable from backend data.
+                        this.resetForm();
+                        this.hideModal();
+                        this.posts = response.data.allPosts; // Reseed posts with updated array from backend.
+                        let post = response.data.savedPost; // Make variable with the post that was just made or changed.
+                        this.notice(
+                            "success",
+                            "Post saved",
+                            `Your post <b>${post.title}</b> was saved.`
+                        );
+                    }
+                    if (response.data.error) {
+                        this.errors = response.data.error; // Display error messages from backend
+                    }
                 })
                 .catch(e => {
-                    this.errors.push(e);
+                    this.errors.push(e); // Add catched error from backend to errors array
+                });
+        },
+        submitDeletePost(postObj) {
+            axios
+                .post("deletePost", {
+                    body: postObj
+                })
+                .then(response => {
+                    console.log("Response: ", response);
+                    if (response.data.deleteStatus == "success") {
+                        // Post was successfully added.
+                        // Reset form, hide modal, notify user and reseed posts variable from backend data.
+                        this.hideDeleteModal();
+                        this.posts = response.data.allPosts; // Reseed posts with updated array from backend.
+                        let post = response.data.deletedPost; // Make variable with the post that was just made or changed.
+                        this.notice(
+                            "success",
+                            "Post deleted",
+                            `Your post <b>${post.title}</b> was deleted.`
+                        );
+                    }
+                    if (response.data.deleteStatus == "error") {
+                        this.hideDeleteModal();
+                        this.posts = response.data.allPosts; // Reseed posts with updated array from backend. If post was somehow deleted elsewhere, it will be removed from displayed list.
+                        this.notice(
+                            "error",
+                            "Post delete error",
+                            `There was an error with deleting the post: ${response.data.errors}`
+                        );
+                    }
+                })
+                .catch(e => {
+                    this.notice("error", "Delete error", e); // Display notification with error from backend
                 });
         },
         notice(type, title, message) {
@@ -272,16 +386,26 @@ export default {
                     title: this.title,
                     post: this.post
                 };
-                // this.notice("success", "Suksess", "Alt stemmer");
                 this.submitPost(postObj);
-                return true;
             }
+        },
+        checkDeleteForm: function(e) {
+            e.preventDefault(); // prevent default form action
+            console.log(this.delete_post);
+            this.submitDeletePost(this.delete_post);
         },
         showModal() {
             $("#editPost").modal("show");
         },
         hideModal() {
             $("#editPost").modal("hide");
+        },
+        hideDeleteModal() {
+            $("#deleteModal").modal("hide");
+        },
+        deletePost(post) {
+            this.delete_post = post;
+            $("#deleteModal").modal("show");
         }
     },
     mounted() {
