@@ -7,124 +7,122 @@
             <h3>Loading posts</h3>
         </div>
 
-
-
-
-  <div v-if="showModal">
-    <transition name="modal">
-      <div class="modal-mask">
-        <div class="modal-wrapper">
-          <div class="modal-dialog" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">Modal title</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true" @click="showModal = false">&times;</span>
-                </button>
-              </div>
-              <div class="modal-body">
-                <p>Modal body text goes here.</p>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" @click="showModal = false">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </transition>
-  </div>
-
-
-  <button @click="showModal = true">Click</button>
-
-
-
-
-
-
-
-        <!-- Modal start -->
-        <div>
-            <div v-if="errors.length">
-                {{ errors.length }} error<span v-if="errors.length > 1">s</span>
-                in form:
-                <ul>
-                    <li v-for="error in errors" :key="error">
-                        {{ error }}
-                    </li>
-                </ul>
-            </div>
-            <div v-if="post_id">Editing post #{{ post_id }}: {{ title }}</div>
-            <div v-else>
-                New post
-            </div>
+        <!-- Modal -->
+        <div
+            class="modal fade"
+            id="editPost"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="editPostLabel"
+            aria-hidden="true"
+        >
             <form v-on:submit.prevent="checkForm">
-                <input
-                    type="hidden"
-                    name="post_id"
-                    v-model="post_id"
-                    value=""
-                />
-                <div class="form-group">
-                    <label for="title">Title</label>
-                    <input
-                        type="text"
-                        class="form-control"
-                        name="title"
-                        id="title"
-                        v-model="title"
-                        aria-describedby="helpId"
-                        placeholder="Post title"
-                    />
-                    <small id="helpId" class="form-text text-muted"
-                        >Title of your post</small
-                    >
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editPostLabel">
+                                <span v-if="post_id"
+                                    >Editing post #{{ post_id }}:
+                                    {{ title }}</span
+                                >
+                                <span v-else>
+                                    New post
+                                </span>
+                            </h5>
+                            <button
+                                type="button"
+                                class="close"
+                                data-dismiss="modal"
+                                aria-label="Close"
+                            >
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div v-if="errors.length">
+                                {{ errors.length }} error<span
+                                    v-if="errors.length > 1"
+                                    >s</span
+                                >
+                                in form:
+                                <ul>
+                                    <li v-for="error in errors" :key="error">
+                                        {{ error }}
+                                    </li>
+                                </ul>
+                            </div>
+                            <input
+                                type="hidden"
+                                name="post_id"
+                                v-model="post_id"
+                                value=""
+                            />
+                            <div class="form-group">
+                                <label for="title">Title</label>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    name="title"
+                                    id="title"
+                                    v-model="title"
+                                    aria-describedby="helpId"
+                                    placeholder="Post title"
+                                />
+                                <small id="helpId" class="form-text text-muted"
+                                    >Title of your post</small
+                                >
+                            </div>
+                            <div class="form-group">
+                                <label for="post">Post</label>
+                                <textarea
+                                    placeholder="Post body"
+                                    class="form-control"
+                                    name="post"
+                                    v-model="post"
+                                    id="post"
+                                    rows="3"
+                                ></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button
+                                type="button"
+                                class="btn btn-secondary"
+                                data-dismiss="modal"
+                            >
+                                Close
+                            </button>
+
+                            <button type="submit" class="btn btn-primary">
+                                Save
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="post">Post</label>
-                    <textarea
-                        placeholder="Post body"
-                        class="form-control"
-                        name="post"
-                        v-model="post"
-                        id="post"
-                        rows="3"
-                    ></textarea>
-                </div>
-                <button
-                    type="button"
-                    class="btn btn-secondary"
-                    data-dismiss="modal"
-                >
-                    Close
-                </button>
-                <button type="submit" class="btn btn-primary">Save</button>
             </form>
         </div>
-        <!-- Modal end -->
 
+        <!-- Modal end -->
 
         <div v-if="posts">
             <div class="row justify-content-center">
-                <div class="col-8">
+                <div class="col-12">
                     <h3>Posts</h3>
                     <button
+                        @click="newPost"
                         type="button"
                         class="btn btn-primary"
-                        data-toggle="modal"
-                        data-target="#edit"
                     >
                         <i class="fas fa-plus"></i> New post
                     </button>
                 </div>
-                <div class="col-8 pt-1">
+                <div class="col-12 pt-1">
                     <table class="table table-striped table-hover">
                         <thead class="thead-inverse">
                             <tr>
                                 <th>Title</th>
                                 <th>Created</th>
+                                <th>Updated</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -134,6 +132,14 @@
                                 <td>
                                     {{
                                         post.created_at
+                                            | moment(
+                                                "dddd, MMMM Do YYYY HH:mm:ss"
+                                            )
+                                    }}
+                                </td>
+                                <td>
+                                    {{
+                                        post.updated_at
                                             | moment(
                                                 "dddd, MMMM Do YYYY HH:mm:ss"
                                             )
@@ -184,7 +190,6 @@ export default {
     data() {
         return {
             errors: [],
-            showModal: false,
             posts: null,
             title: null,
             post: null,
@@ -201,20 +206,26 @@ export default {
         },
         editPost(post) {
             console.log(post);
-            this.post_id = post.id
-            this.title = post.title
-            this.post = post.post
+            this.post_id = post.id;
+            this.title = post.title;
+            this.post = post.post;
+            this.showModal();
+        },
+        newPost() {
+            this.resetForm();
+            this.showModal();
         },
         submitPost(postObj) {
             axios
-                .post('postSubmit', {
+                .post("postSubmit", {
                     body: postObj
                 })
                 .then(response => {
-                    this.notice("success", "Post saved", "Your post was saved");
                     this.resetForm();
-                    console.log("Response: ", response)
-                    this.posts = response.data
+                    this.hideModal();
+                    console.log("Response: ", response);
+                    this.posts = response.data;
+                    this.notice("success", "Post saved", "Your post was saved");
                 })
                 .catch(e => {
                     this.errors.push(e);
@@ -227,13 +238,13 @@ export default {
             });
         },
         resetForm() {
-            this.title = null,
-            this.post = null,
-            this.errors = [],
-            this.post_id = null
+            (this.title = null),
+                (this.post = null),
+                (this.errors = []),
+                (this.post_id = null);
         },
         checkForm: function(e) {
-            e.preventDefault();  // prevent default form action
+            e.preventDefault(); // prevent default form action
 
             this.errors = []; // make errors array empty
 
@@ -259,12 +270,18 @@ export default {
                 let postObj = {
                     post_id: this.post_id,
                     title: this.title,
-                    post:this.post
-                }
+                    post: this.post
+                };
                 // this.notice("success", "Suksess", "Alt stemmer");
                 this.submitPost(postObj);
                 return true;
             }
+        },
+        showModal() {
+            $("#editPost").modal("show");
+        },
+        hideModal() {
+            $("#editPost").modal("hide");
         }
     },
     mounted() {
@@ -272,21 +289,3 @@ export default {
     }
 };
 </script>
-<style scoped>
-.modal-mask {
-  position: fixed;
-  z-index: 9998;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, .5);
-  display: table;
-  transition: opacity .3s ease;
-}
-
-.modal-wrapper {
-  display: table-cell;
-  vertical-align: middle;
-}
-</style>
