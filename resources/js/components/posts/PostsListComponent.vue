@@ -74,7 +74,7 @@
                         <div class="modal-header">
                             <h5 class="modal-title" id="editPostLabel">
                                 <span v-if="post_id"
-                                    >Editing post #{{ post_id }}:
+                                    >Editing post (id: #{{ post_id }}):
                                     {{ title }}</span
                                 >
                                 <span v-else>
@@ -183,7 +183,11 @@
                         </thead>
                         <tbody>
                             <tr v-for="(post, index) of posts" :key="index">
-                                <td scope="row">{{ post.title }}</td>
+                                <td scope="row">
+                                    <a :href="'post/' + post.id + '/' + post.slug">
+                                        {{ post.title }}
+                                    </a>
+                                </td>
                                 <td>
                                     {{
                                         post.created_at

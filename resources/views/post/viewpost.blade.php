@@ -1,7 +1,4 @@
 @extends('layouts.app')
-
 @section('content')
-
-<posts-list-component></posts-list-component>
-
+<post-component post='{!! $post !!}'></post-component>
 @endsection

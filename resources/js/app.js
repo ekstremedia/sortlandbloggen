@@ -28,6 +28,18 @@ Vue.use(require('vue-moment'));
 import CripNotice from 'crip-vue-notice'
 Vue.use(CripNotice)
 
+// Vue-router
+import VueRouter from 'vue-router'
+
+Vue.use(VueRouter)
+import routes from "./routes";
+
+const router = new VueRouter({
+    mode: "history",
+    // base: "/sortlandbloggen/public/",
+    routes
+});
+
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application
@@ -36,4 +48,5 @@ Vue.use(CripNotice)
 
 const app = new Vue({
     el: '#app',
+    router
 });

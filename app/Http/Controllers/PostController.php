@@ -4,91 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Post  $post
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Post $post)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Post  $post
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Post $post)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Post  $post
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Post $post)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Post  $post
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Post $post)
-    {
-        //
-    }
-
-    /**
-     * Show users posts
-     *
-     * @param  \App\Post  $post
-     * @return \Illuminate\Http\Response
-     */
     public function showPosts()
     {
         // $posts = Post::where('user_id', auth()->user()->id)
@@ -127,24 +47,24 @@ class PostController extends Controller
         }
 
         if (!$error) {
+            $postTitle = $request->body['title'];
+            $postBody = $request->body['post'];
+            $postSlug = Str::slug($postTitle);
+
             if (isset($request->body['post_id'])) {
                 $thePost = Post::where('id', $request->body['post_id'])->first();
-                $thePost->title = $request->body['title'];
-                $thePost->post = $request->body['post'];
-                $thePost->user_id = auth()->user()->id;
-                $thePost->save();
-                $response->put("savedPost", $thePost);
-                $response->put("postStatus", "success");
             } else {
                 // Making new post
                 $thePost = new Post();
-                $thePost->title = $request->body['title'];
-                $thePost->post = $request->body['post'];
                 $thePost->user_id = auth()->user()->id;
-                $thePost->save();
-                $response->put("savedPost", $thePost);
-                $response->put("postStatus", "success");
             }
+
+            $thePost->title = $postTitle;
+            $thePost->post = $postBody;
+            $thePost->slug = $postSlug;
+            $thePost->save();
+            $response->put("savedPost", $thePost);
+            $response->put("postStatus", "success");
         } else {
             $response->put("error", $error);
         }
@@ -202,5 +122,18 @@ class PostController extends Controller
             ->first();
 
         return $post;
+    }
+
+
+    public function showPost($id, $slug)
+    {
+        $post = Post::where('id', $id)
+            ->with('author')
+            ->first();
+        if ($post) {
+            return view('post.viewpost')->with('post', $post);
+        } else {
+            return abort(404);
+        }
     }
 }

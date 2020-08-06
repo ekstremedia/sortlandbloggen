@@ -25,6 +25,7 @@
     },
     "dependencies": {
         "crip-vue-notice": "^1.1.1",
-        "vue-moment": "^4.1.0"
+        "vue-moment": "^4.1.0",
+        "vue-router": "^3.4.1"
     }
 }

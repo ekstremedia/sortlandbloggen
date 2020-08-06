@@ -79,6 +79,7 @@
 
         <main class="py-4 container">
             @yield('content')
+            <router-view></router-view>
         </main>
     </div>
     @yield ('scripts')
