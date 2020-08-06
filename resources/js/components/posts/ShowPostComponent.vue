@@ -6,15 +6,61 @@
             </div>
             <h3>Loading posts</h3>
         </div>
+
+
+
+
+  <div v-if="showModal">
+    <transition name="modal">
+      <div class="modal-mask">
+        <div class="modal-wrapper">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true" @click="showModal = false">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <p>Modal body text goes here.</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @click="showModal = false">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </transition>
+  </div>
+
+
+  <button @click="showModal = true">Click</button>
+
+
+
+
+
+
+
+        <!-- Modal start -->
         <div>
+            <div v-if="errors.length">
+                {{ errors.length }} error<span v-if="errors.length > 1">s</span>
+                in form:
+                <ul>
+                    <li v-for="error in errors" :key="error">
+                        {{ error }}
+                    </li>
+                </ul>
+            </div>
+            <div v-if="post_id">Editing post #{{ post_id }}: {{ title }}</div>
+            <div v-else>
+                New post
+            </div>
             <form v-on:submit.prevent="checkForm">
-                <div v-if="errors.length">
-                    <ul>
-                        <li v-for="error in errors" :key="error">
-                            {{ error }}
-                        </li>
-                    </ul>
-                </div>
                 <input
                     type="hidden"
                     name="post_id"
@@ -57,6 +103,9 @@
                 <button type="submit" class="btn btn-primary">Save</button>
             </form>
         </div>
+        <!-- Modal end -->
+
+
         <div v-if="posts">
             <div class="row justify-content-center">
                 <div class="col-8">
@@ -109,6 +158,7 @@
                                             <button
                                                 class="dropdown-item"
                                                 href="#"
+                                                @click="editPost(post)"
                                             >
                                                 Edit
                                             </button>
@@ -134,7 +184,7 @@ export default {
     data() {
         return {
             errors: [],
-
+            showModal: false,
             posts: null,
             title: null,
             post: null,
@@ -148,10 +198,27 @@ export default {
                 // this.yrdata = response.data;
                 this.posts = response.data;
             }
-            this.$notice["info"]({
-                title: `Posts loaded`,
-                description: `Successfully loaded ${this.posts.length} posts`
-            });
+        },
+        editPost(post) {
+            console.log(post);
+            this.post_id = post.id
+            this.title = post.title
+            this.post = post.post
+        },
+        submitPost(postObj) {
+            axios
+                .post('postSubmit', {
+                    body: postObj
+                })
+                .then(response => {
+                    this.notice("success", "Post saved", "Your post was saved");
+                    this.resetForm();
+                    console.log("Response: ", response)
+                    this.posts = response.data
+                })
+                .catch(e => {
+                    this.errors.push(e);
+                });
         },
         notice(type, title, message) {
             this.$notice[type]({
@@ -159,34 +226,45 @@ export default {
                 description: message
             });
         },
+        resetForm() {
+            this.title = null,
+            this.post = null,
+            this.errors = [],
+            this.post_id = null
+        },
         checkForm: function(e) {
-            if (this.name && this.age) {
-                return true;
-            }
+            e.preventDefault();  // prevent default form action
 
-            this.errors = [];
+            this.errors = []; // make errors array empty
 
+            // add errors to errors array if found
             if (!this.title) {
                 this.errors.push("Title required.");
             }
             if (!this.post) {
                 this.errors.push("Post required.");
             }
-
+            // If form validation has errors
             if (this.errors.length) {
                 let errorMessages = "";
                 for (let error of this.errors) {
-                    errorMessages += error+' ';
+                    errorMessages += error + " ";
                 }
                 this.notice("error", "Errors in form", errorMessages);
-                
             }
 
+            // If form validation is ok
             if (!this.errors.length) {
-                this.notice("success", "Suksess", "Alt stemmer");
+                this.error = null;
+                let postObj = {
+                    post_id: this.post_id,
+                    title: this.title,
+                    post:this.post
+                }
+                // this.notice("success", "Suksess", "Alt stemmer");
+                this.submitPost(postObj);
                 return true;
             }
-            e.preventDefault();
         }
     },
     mounted() {
@@ -194,3 +272,21 @@ export default {
     }
 };
 </script>
+<style scoped>
+.modal-mask {
+  position: fixed;
+  z-index: 9998;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, .5);
+  display: table;
+  transition: opacity .3s ease;
+}
+
+.modal-wrapper {
+  display: table-cell;
+  vertical-align: middle;
+}
+</style>

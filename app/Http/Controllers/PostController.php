@@ -118,19 +118,30 @@ class PostController extends Controller
      */
     public function postSubmit(Request $request)
     {
-        // dd($request);
+        // dd($request->body['title']);
 
-        if ($request->post_id) {
-            // Editing old post
-        } else {
+        if (isset($request->body['post_id'])) {
+            $thePost = Post::where('id', $request->body['post_id'])->first();
+            $thePost->title = $request->body['title'];
+            $thePost->post = $request->body['post'];
+            $thePost->user_id = auth()->user()->id;
+            $thePost->save();
+            } else {
             // Making new post
             $thePost = new Post();
-            $thePost->title = $request->title;
-            $thePost->post = $request->post;
+            $thePost->title = $request->body['title'];
+            $thePost->post = $request->body['post'];
             $thePost->user_id = auth()->user()->id;
             $thePost->save();
         }
 
-        return redirect('posts');
+        // return response()->json($request);
+        $posts = Post::where('user_id', auth()->user()->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+        return response()->json($posts);
+        
+
+        // return redirect('posts');
     }
 }
