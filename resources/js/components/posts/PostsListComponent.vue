@@ -7,6 +7,49 @@
             <h3>Loading posts</h3>
         </div>
 
+        <!-- View post modal -->
+
+        <div
+            v-if="previewPost"
+            class="modal fade"
+            id="previewPostModal"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="previewPostModalLabel"
+            aria-hidden="true"
+        >
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="previewPostModalLabel">
+                            Preview post
+                        </h5>
+                        <button
+                            type="button"
+                            class="close"
+                            data-dismiss="modal"
+                            aria-label="Close"
+                        >
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <post-component :post="preview_post"></post-component>
+                    </div>
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-dismiss="modal"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- View post modal end -->
+
         <!-- Delete modal -->
 
         <div
@@ -184,8 +227,22 @@
                         <tbody>
                             <tr v-for="(post, index) of posts" :key="index">
                                 <td scope="row">
-                                    <a :href="'post/' + post.id + '/' + post.slug">
-                                        {{ post.title }}
+                                    <span
+                                        @click="previewPost(post)"
+                                        class="previewPostLink"
+                                        >{{ post.title }}</span
+                                    >
+                                    <a
+                                        :href="
+                                            'post/' + post.id + '/' + post.slug
+                                        "
+                                        title="Permalink"
+                                    >
+                                        <small class="pl-2"
+                                            ><i
+                                                class="fas fa-link text-muted"
+                                            ></i
+                                        ></small>
                                     </a>
                                 </td>
                                 <td>
@@ -262,6 +319,7 @@ export default {
             title: null,
             post: null,
             post_id: null,
+            preview_post: null,
             delete_post: {}
         };
     },
@@ -279,6 +337,11 @@ export default {
             this.title = post.title;
             this.post = post.post;
             this.showModal();
+        },
+        previewPost(post) {
+            console.log(post);
+            this.preview_post = post;
+            this.showPreviewModal();
         },
         newPost() {
             this.resetForm();
@@ -407,6 +470,9 @@ export default {
         hideDeleteModal() {
             $("#deleteModal").modal("hide");
         },
+        showPreviewModal() {
+            $("#previewPostModal").modal("show");
+        },
         deletePost(post) {
             this.delete_post = post;
             $("#deleteModal").modal("show");
@@ -417,3 +483,12 @@ export default {
     }
 };
 </script>
+<style scoped>
+.previewPostLink {
+    cursor: pointer;
+    color: blue;
+}
+.previewPostLink:hover {
+    color: blueviolet;
+}
+</style>

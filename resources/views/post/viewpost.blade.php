@@ -1,4 +1,4 @@
 @extends('layouts.app')
 @section('content')
-<post-component post='{!! $post !!}'></post-component>
+<post-component json_post='{!! $post !!}'></post-component>
 @endsection

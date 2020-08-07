@@ -1,9 +1,11 @@
 <template>
     <div v-if="parsed_post">
         <h3>{{ parsed_post.title }}</h3>
-        Author: {{ parsed_post.author.name }}<br />
-        Last updated:
-        {{ parsed_post.updated_at | moment("dddd, MMMM Do YYYY HH:mm") }}
+        <small class="text-muted">
+            Author: {{ parsed_post.author.name }}<br />
+            Last updated:
+            {{ parsed_post.updated_at | moment("dddd, MMMM Do YYYY HH:mm") }}
+        </small>
         <hr />
         <p>{{ parsed_post.post }}</p>
     </div>
@@ -11,7 +13,7 @@
 
 <script>
 export default {
-    props: ["post_id", "post"],
+    props: ["post_id", "post", "json_post"],
     methods: {
         route: function() {
             // console.log(JSON.parse(this.post_var))
@@ -19,7 +21,11 @@ export default {
     },
     computed: {
         parsed_post: function() {
-            return JSON.parse(this.post);
+            if (this.json_post) {
+                return JSON.parse(this.json_post);
+            } else {
+                return this.post;
+            }
         }
     },
     mounted() {
