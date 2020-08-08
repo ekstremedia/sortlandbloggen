@@ -1,5 +1,8 @@
 <template>
     <div>
+        <div v-if="laravelData && laravelData.data && laravelData.data.length == 0" class="text-center">
+            There are no posts, yet
+        </div>
         <post-component
             class="mb-2"
             v-for="post in laravelData.data"

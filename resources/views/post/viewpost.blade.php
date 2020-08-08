@@ -3,7 +3,7 @@
 <div class="card">
     <div class="card-body">
         <h3>
-            <span v-if="!title_link">{{ $post->title }}</span>
+            {{ $post->title }}
         </h3>
         <small class="text-muted">
             Author: {{ $post->author->name }} -

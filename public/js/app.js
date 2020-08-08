@@ -1968,6 +1968,9 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -40297,6 +40300,14 @@ var render = function() {
   return _c(
     "div",
     [
+      _vm.laravelData &&
+      _vm.laravelData.data &&
+      _vm.laravelData.data.length == 0
+        ? _c("div", { staticClass: "text-center" }, [
+            _vm._v("\n        There are no posts, yet\n    ")
+          ])
+        : _vm._e(),
+      _vm._v(" "),
       _vm._l(_vm.laravelData.data, function(post) {
         return _c("post-component", {
           key: post.id,
