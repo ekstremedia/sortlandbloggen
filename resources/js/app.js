@@ -28,25 +28,37 @@ Vue.use(require('vue-moment'));
 import CripNotice from 'crip-vue-notice'
 Vue.use(CripNotice)
 
+Vue.component('pagination', require('laravel-vue-pagination'));
+
 // Vue-router
 import VueRouter from 'vue-router'
 
-Vue.use(VueRouter)
-import routes from "./routes";
+// Vue.use(VueRouter)
+// import routes from "./routes";
 
-const router = new VueRouter({
-    mode: "history",
-    // base: "/sortlandbloggen/public/",
-    routes
-});
+// const router = new VueRouter({
+//     mode: "history",
+//     // base: "/sortlandbloggen/public/",
+//     routes
+// });
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
-
+window.axios.defaults.baseURL = document.head.querySelector('meta[name="api-base-url"]').content;
+Vue.mixin({
+    data: function() {
+      return {
+        get appBaseUrl() {
+          return window.axios.defaults.baseURL;
+        }
+      }
+    }
+  })
+  
 const app = new Vue({
     el: '#app',
-    router
+    // router
 });

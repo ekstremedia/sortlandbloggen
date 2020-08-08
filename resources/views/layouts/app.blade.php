@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="api-base-url" content="{{ url('/') }}" />
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -52,9 +53,11 @@
                         </li>
                         @endif
                         @else
+                        @if(!Auth::user()->read_only)
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('posts') }}">{{ __('Posts') }}</a>
                         </li>
+                        @endif
                         <li class="nav-item dropdown">
                             <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                 {{ Auth::user()->name }} <span class="caret"></span>
@@ -79,7 +82,6 @@
 
         <main class="py-4 container">
             @yield('content')
-            <router-view></router-view>
         </main>
     </div>
     @yield ('scripts')

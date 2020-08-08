@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-if="user">
         <div v-if="!posts" class="text-center">
             <div class="spinner-border text-success" role="status">
                 <span class="sr-only">Loading posts...</span>
@@ -10,7 +10,6 @@
         <!-- View post modal -->
 
         <div
-            v-if="previewPost"
             class="modal fade"
             id="previewPostModal"
             tabindex="-1"
@@ -34,7 +33,10 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <post-component :post="preview_post"></post-component>
+                        <post-component
+                            :title_link="true"
+                            :post="this.preview_post"
+                        ></post-component>
                     </div>
                     <div class="modal-footer">
                         <button
@@ -210,6 +212,7 @@
                         @click="newPost"
                         type="button"
                         class="btn btn-primary"
+                        v-if="!user.read_only"
                     >
                         <i class="fas fa-plus"></i> New post
                     </button>
@@ -221,7 +224,7 @@
                                 <th>Title</th>
                                 <th>Created</th>
                                 <th>Updated</th>
-                                <th>Action</th>
+                                <th v-if="!user.read_only">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -261,7 +264,7 @@
                                             )
                                     }}
                                 </td>
-                                <td>
+                                <td v-if="!user.read_only">
                                     <div class="dropdown open">
                                         <button
                                             class="btn btn-secondary dropdown-toggle float-right"
@@ -320,7 +323,8 @@ export default {
             post: null,
             post_id: null,
             preview_post: null,
-            delete_post: {}
+            delete_post: {},
+            user: null
         };
     },
     methods: {
@@ -331,6 +335,13 @@ export default {
                 this.posts = response.data;
             }
         },
+        async getUser() {
+            let response = await axios.get("currentUser");
+            if (response.data) {
+                // this.yrdata = response.data;
+                this.user = response.data;
+            }
+        },
         editPost(post) {
             console.log(post);
             this.post_id = post.id;
@@ -339,8 +350,8 @@ export default {
             this.showModal();
         },
         previewPost(post) {
-            console.log(post);
             this.preview_post = post;
+            // console.log("preview_post",this.preview_post);
             this.showPreviewModal();
         },
         newPost() {
@@ -385,27 +396,35 @@ export default {
                     body: postObj
                 })
                 .then(response => {
-                    console.log("Response: ", response);
-                    if (response.data.deleteStatus == "success") {
-                        // Post was successfully added.
-                        // Reset form, hide modal, notify user and reseed posts variable from backend data.
-                        this.hideDeleteModal();
-                        this.posts = response.data.allPosts; // Reseed posts with updated array from backend.
-                        let post = response.data.deletedPost; // Make variable with the post that was just made or changed.
-                        this.notice(
-                            "success",
-                            "Post deleted",
-                            `Your post <b>${post.title}</b> was deleted.`
-                        );
-                    }
-                    if (response.data.deleteStatus == "error") {
-                        this.hideDeleteModal();
-                        this.posts = response.data.allPosts; // Reseed posts with updated array from backend. If post was somehow deleted elsewhere, it will be removed from displayed list.
+                    // console.log("Response: ", response);
+                    if (response.data.deleteStatus == "noaccess") {
                         this.notice(
                             "error",
                             "Post delete error",
-                            `There was an error with deleting the post: ${response.data.errors}`
+                            "You dont have access to delete posts"
                         );
+                    } else {
+                        if (response.data.deleteStatus == "success") {
+                            // Post was successfully added.
+                            // Reset form, hide modal, notify user and reseed posts variable from backend data.
+                            this.hideDeleteModal();
+                            this.posts = response.data.allPosts; // Reseed posts with updated array from backend.
+                            let post = response.data.deletedPost; // Make variable with the post that was just made or changed.
+                            this.notice(
+                                "success",
+                                "Post deleted",
+                                `Your post <b>${post.title}</b> was deleted.`
+                            );
+                        }
+                        if (response.data.deleteStatus == "error") {
+                            this.hideDeleteModal();
+                            this.posts = response.data.allPosts; // Reseed posts with updated array from backend. If post was somehow deleted elsewhere, it will be removed from displayed list.
+                            this.notice(
+                                "error",
+                                "Post delete error",
+                                `There was an error with deleting the post: ${response.data.errors}`
+                            );
+                        }
                     }
                 })
                 .catch(e => {
@@ -479,6 +498,7 @@ export default {
         }
     },
     mounted() {
+        this.getUser();
         this.getPosts();
     }
 };

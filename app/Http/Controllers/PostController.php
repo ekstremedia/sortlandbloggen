@@ -32,6 +32,14 @@ class PostController extends Controller
         return $posts;
     }
 
+    public function getPost($id)
+    {
+        $post = Post::where('id', $id)
+            ->with('author')
+            ->first();
+        return $post;
+    }
+
     public function postSubmit(Request $request)
     {
         // // dd($request->body['title']);
@@ -39,6 +47,12 @@ class PostController extends Controller
 
         $error = [];
 
+        if (auth()->user()->read_only) {
+            $error[] = "You have no write access";
+        }
+        if (!isset($request->body['title']) || empty($request->body['title'])) {
+            $error[] = "Empty title";
+        }
         if (!isset($request->body['title']) || empty($request->body['title'])) {
             $error[] = "Empty title";
         }
@@ -79,27 +93,33 @@ class PostController extends Controller
 
     public function deletePost(Request $request)
     {
-        // // dd($request->body['title']);
-        $response = collect();
         $errors = [];
-        $thePost = Post::where('id', $request->body['id'])->first();
-        if ($thePost) {
-            if ($thePost->delete()) {
-                $response->put("deleteStatus", "success");
+        $response = collect();
+
+        if (auth()->user()->read_only) {
+            $errors[] = "You have no write access";
+            $response->put("deleteStatus", "noaccess");
+        } else {
+            // // dd($request->body['title']);
+            $thePost = Post::where('id', $request->body['id'])->first();
+            if ($thePost) {
+                if ($thePost->delete()) {
+                    $response->put("deleteStatus", "success");
+                } else {
+                    $response->put("deleteStatus", "error");
+                    $errors[] = "Could not delete the post";
+                }
             } else {
                 $response->put("deleteStatus", "error");
-                $errors[] = "Could not delete the post";
+                $errors[] = "The post does not exist.";
             }
-        } else {
-            $response->put("deleteStatus", "error");
-            $errors[] = "The post does not exist.";
+            $posts = Post::where('user_id', auth()->user()->id)
+                ->with('author')
+                ->orderBy('created_at', 'desc')
+                ->get();
+            $response->put("allPosts", $posts);
+            $response->put("deletedPost", $thePost);
         }
-        $posts = Post::where('user_id', auth()->user()->id)
-            ->with('author')
-            ->orderBy('created_at', 'desc')
-            ->get();
-        $response->put("allPosts", $posts);
-        $response->put("deletedPost", $thePost);
         if ($errors) {
             $response->put("errors", $errors);
         }
@@ -128,12 +148,25 @@ class PostController extends Controller
     public function showPost($id, $slug)
     {
         $post = Post::where('id', $id)
+            ->where('slug', $slug)
             ->with('author')
             ->first();
         if ($post) {
             return view('post.viewpost')->with('post', $post);
         } else {
-            return abort(404);
+            $data =  array("error" => "Could not find post containing $id/$slug.");
+            return response()->view('layouts.404', $data, 404);
         }
+    }
+
+    public function paginationResults()
+    {
+        $posts = Post::orderBy('created_at', 'desc')
+            ->with('author')
+            ->paginate(3);
+        // ->get();
+
+        // dd($posts);
+        return  $posts;
     }
 }
