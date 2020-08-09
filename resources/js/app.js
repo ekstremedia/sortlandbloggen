@@ -4,9 +4,9 @@
  * building robust, powerful web applications using Vue and Laravel.
  */
 
-require('./bootstrap');
+require("./bootstrap");
 
-window.Vue = require('vue');
+window.Vue = require("vue");
 
 /**
  * The following block of code may be used to automatically register your
@@ -16,49 +16,49 @@ window.Vue = require('vue');
  * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
  */
 
-const files = require.context('./', true, /\.vue$/i)
-files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
-
-Vue.component('example-component', require('./components/ExampleComponent.vue').default);
+const files = require.context("./", true, /\.vue$/i);
+files.keys().map(key =>
+    Vue.component(
+        key
+            .split("/")
+            .pop()
+            .split(".")[0],
+        files(key).default
+    )
+);
 
 // Include moment
-Vue.use(require('vue-moment'));
+Vue.use(require("vue-moment"));
 
 // Minimal Growl-style Notification Component – vue-notice
-import CripNotice from 'crip-vue-notice'
-Vue.use(CripNotice)
+import CripNotice from "crip-vue-notice";
+Vue.use(CripNotice);
 
-Vue.component('pagination', require('laravel-vue-pagination'));
-
-// Vue-router
-import VueRouter from 'vue-router'
-
-// Vue.use(VueRouter)
-// import routes from "./routes";
-
-// const router = new VueRouter({
-//     mode: "history",
-//     // base: "/sortlandbloggen/public/",
-//     routes
-// });
+Vue.component("pagination", require("laravel-vue-pagination"));
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
-window.axios.defaults.baseURL = document.head.querySelector('meta[name="api-base-url"]').content;
+
+
+// Global variable with baseURL
+
+window.axios.defaults.baseURL = document.head.querySelector(
+  'meta[name="api-base-url"]'
+).content;
+
 Vue.mixin({
     data: function() {
-      return {
-        get appBaseUrl() {
-          return window.axios.defaults.baseURL;
-        }
-      }
+        return {
+            get appBaseUrl() {
+                return window.axios.defaults.baseURL;
+            }
+        };
     }
-  })
-  
+});
+
 const app = new Vue({
-    el: '#app',
-    // router
+    el: "#app"
 });

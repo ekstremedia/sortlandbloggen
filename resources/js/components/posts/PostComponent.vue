@@ -7,23 +7,23 @@
                     :href="
                         this.appBaseUrl +
                             '/post/' +
-                            parsed_post.id +
+                            computed_post.id +
                             '/' +
-                            parsed_post.slug
+                            computed_post.slug
                     "
                 >
-                    {{ parsed_post.title }}
+                    {{ computed_post.title }}
                 </a>
-                <span v-if="!title_link">{{ parsed_post.title }}</span>
+                <span v-if="!title_link">{{ computed_post.title }}</span>
             </h3>
             <small class="text-muted">
-                Author: {{ parsed_post.author.name }} -
-                {{ parsed_post.created_at | moment("MMMM Do YYYY") }}
+                Author: {{ computed_post.author.name }} -
+                {{ computed_post.created_at | moment("MMMM Do YYYY") }}
                 <i class="far fa-clock"></i>
-                {{ parsed_post.created_at | moment("HH:mm") }}
+                {{ computed_post.created_at | moment("HH:mm") }}
             </small>
             <hr />
-            <p class="pre-formatted">{{ parsed_post.post }}</p>
+            <p class="pre-formatted">{{ computed_post.post }}</p>
         </div>
     </div>
 </template>
@@ -35,7 +35,8 @@ export default {
         title_link: Boolean
     },
     computed: {
-        parsed_post() {
+        computed_post() {
+            // Computing the post model will update it for the modal if it changes
             return this.post;
         }
     }

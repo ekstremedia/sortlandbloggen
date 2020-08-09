@@ -10,7 +10,6 @@
             {{ \Carbon\Carbon::parse($post->created_at)->format('F jS Y') }}
             <i class="far fa-clock"></i>
             {{ \Carbon\Carbon::parse($post->created_at)->format('H:i') }}
-
         </small>
         <hr />
         <p class="pre-formatted">{{ $post->post }}</p>
