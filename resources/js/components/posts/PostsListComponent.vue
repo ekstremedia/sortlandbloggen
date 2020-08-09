@@ -168,6 +168,7 @@
                                         v-model="title"
                                         aria-describedby="helpId"
                                         placeholder="Post title"
+                                        required
                                     />
                                     <small
                                         id="helpId"
@@ -184,6 +185,7 @@
                                         v-model="post"
                                         id="post"
                                         rows="3"
+                                        required
                                     ></textarea>
                                 </div>
                             </div>
