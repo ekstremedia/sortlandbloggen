@@ -47,7 +47,7 @@ Changes made in the list are reactive. For every action, the changed list is sen
 
 Clicking on post title will open a preview modal. Also added a permalink next to title, wich links to public post page.
 
-Posts have a [controller](app/Http/Controllers/PostController.php) and [model](app/Post.php). Added database relations to User model for posts and reverse relation Post to [User](app/User.php). A post belongs to User, and User has many posts. 
+Posts have a [controller](app/Http/Controllers/PostController.php) and [model](app/Post.php). Added database relations to User model for posts and reverse relation [Post](app/Post.php) to [User](app/User.php). A post belongs to User, and User has many posts. 
 
 ## Demo
 <a name="demo"></a>
@@ -94,13 +94,11 @@ DB_DATABASE=tablename
 DB_USERNAME=username
 DB_PASSWORD=password
 ```
-Run Laravel migrations to add the tables to database
-```
-php artisan migrate
-```
-
 Generate your application encryption key
 ```
 php artisan key:generate
 ```
-
+Run Laravel migrations to add the tables to database
+```
+php artisan migrate
+```
