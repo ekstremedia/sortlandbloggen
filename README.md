@@ -85,16 +85,22 @@ Compile Vue scripts
 ```
 npm run prod
 ```
-Add database info in .env file:
+Edit database section in [.env](.env) file:
 ```
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=sortlandbloggen
-DB_USERNAME=sbadmin
-DB_PASSWORD=1GZsu5bfTt6S
+DB_DATABASE=tablename
+DB_USERNAME=username
+DB_PASSWORD=password
 ```
 Run Laravel migrations to add the tables to database
 ```
 php artisan migrate
 ```
+
+Generate your application encryption key
+```
+php artisan key:generate
+```
+
