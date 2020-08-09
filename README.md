@@ -1,14 +1,21 @@
 # Sortlandbloggen
 
-## Frameworks and components used:
+- [Framework and components used](#framework)
+- [Tasks](#tasks)
+- [Solution](#solution)
+- [Demo](#demo)
+- [Installation](#installation)
 
+## Frameworks and components used:
+<a name="framework"></a>
 - [Laravel](https://github.com/laravel/laravel) v7.23.2
 - [Vue](https://github.com/vuejs/vue) v2.5.17
 - [crip-vue-notice](https://www.npmjs.com/package/crip-vue-notice) v1.1.1
 - [laravel-vue-pagination](https://github.com/gilbitron/laravel-vue-pagination) v2.3.1
 - [vue-moment](https://www.npmjs.com/package/vue-moment) v4.1.0
 
-## Tasks
+## Tasks 
+<a name="tasks"></a>
 - Login page
 - List of posts
 - A user should only be able to access the page after logging in.
@@ -25,11 +32,12 @@
 - Bonus: Making users with read only access
 
 ## Solution
-For the user part I used Laravel's [built in user system](https://laravel.com/docs/7.x/authentication), and used [Laravel Sanctum](https://laravel.com/docs/7.x/sanctum) for authentication, to easily have a usable user database with register/login with validation. User model has an extra "read_only" boolean column wich defaults to 0, not read only used. One must choose on the registration page.
+<a name="solution"></a>
+For the user part I used Laravel's [built in user system](https://laravel.com/docs/7.x/authentication), and used [Laravel Sanctum](https://laravel.com/docs/7.x/sanctum) for authentication, to easily have a usable user database with register/login with validation. User model has an extra "read_only" boolean column wich defaults to 0, not read only used. One must choose on the [registration page](resources/views/auth/register.blade.php).
 
 The [routes](routes/web.php) for the Post controllers functions that needs authentication are protected by Sanctum middleware.   
 
-The List page lists all posts by current logged in user. If the user is not read only, it displays an "New post" button, and an Action dropdown button with Edit and Delete. 
+The [List post page (Posts)](resources/js/components/posts/PostsListComponent.vue) lists all posts by current logged in user. If the user is not read only, it displays an "New post" button, and an Action dropdown button with Edit and Delete. 
 
 Delete button has an confirmation modal.
 
@@ -39,4 +47,54 @@ Changes made in the list are reactive. For every action, the changed list is sen
 
 Clicking on post title will open a preview modal. Also added a permalink next to title, wich links to public post page.
 
+Posts have a [controller](app/Http/Controllers/PostController.php) and [model](app/Post.php). Added database relations to User model for posts and reverse relation Post to [User](app/User.php). A post belongs to User, and User has many posts. 
 
+## Demo
+<a name="demo"></a>
+Working demo can be found on [https://ekstremedia.no/sortlandbloggen/public](https://ekstremedia.no/sortlandbloggen/public)
+
+It has two users already: 
+
+Mr Read Only
+- email: read@only.email
+- password: readonly
+
+Mr Normal Account
+- email: normal@account.no
+- password: normalaccount
+## Installation
+<a name="installation"></a>
+
+Clone [repository](https://github.com/ekstremedia/sortlandbloggen) with Git.
+```
+git clone https://github.com/ekstremedia/sortlandbloggen sortlandbloggen
+```
+Change into cloned folder
+```
+cd sortlandbloggen
+````
+Install Laravel components via composer:
+```
+composer install
+```
+Install NodeJS components:
+```
+npm install
+```
+Compile Vue scripts
+```
+npm run prod
+```
+Add database info in .env file:
+```
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=sortlandbloggen
+DB_USERNAME=sbadmin
+DB_PASSWORD=1GZsu5bfTt6S
+```
+Run Laravel migrations to add the tables to database
+```
+php artisan migrate
+```
