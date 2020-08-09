@@ -222,7 +222,7 @@
                     </div>
                     <div class="col-12 pt-1 ">
                         <table
-                            class="table table-striped table-responsive table-hover"
+                            class="table table-striped table-hover"
                         >
                             <thead class="thead-inverse">
                                 <tr>
